@@ -24,25 +24,22 @@ final class BookingService
             $total += $item->ticket->price * $item->quantity;
         }
 
-        // Ancienne règle VIP : remise fixe de 10 %.
         if ($booking->customer->type === 'vip') {
             $total *= 0.90;
         }
 
-        // Ancienne règle Pass 3 jours : remise fixe de 10 euros.
         if ($booking->passType === '3days') {
             $total -= 10.0;
         }
 
-        if ($paymentMethod === 'stripe') {
-            $stripe = new StripeClient();
-            $transactionId = $stripe->charge($total);
-            echo "PAYMENT {$transactionId}" . PHP_EOL;
-        } elseif ($paymentMethod === 'payfast') {
-            throw new RuntimeException('PayFast not implemented');
-        } else {
-            throw new RuntimeException('Unknown payment method');
-        }
+        $gateway = match ($paymentMethod) {
+            'stripe'  => new StripePaymentGateway(),
+            'payfast' => new PayFastPaymentGateway(),
+            default   => throw new RuntimeException('Unknown payment method'),
+        };
+
+        $transactionId = $gateway->pay($total, 'booking-' . $booking->id);
+        echo "PAYMENT {$transactionId}" . PHP_EOL;
 
         $booking->status = 'confirmed';
 
