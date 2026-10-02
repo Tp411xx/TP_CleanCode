@@ -33,8 +33,8 @@ final class BookingService
         }
 
         $gateway = match ($paymentMethod) {
-            'stripe'  => new StripePaymentGateway(),
-            'payfast' => new PayFastPaymentGateway(),
+            'stripe'  => new SupervisedPaymentGateway(new StripePaymentGateway(), 'stripe'),
+            'payfast' => new SupervisedPaymentGateway(new PayFastPaymentGateway(), 'payfast'),
             default   => throw new RuntimeException('Unknown payment method'),
         };
 

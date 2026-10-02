@@ -9,6 +9,7 @@ require_once __DIR__ . '/src/Booking.php';
 require_once __DIR__ . '/src/StripeClient.php';
 require_once __DIR__ . '/src/PayFastSdk.php';
 require_once __DIR__ . '/src/PaymentGateway.php';
+require_once __DIR__ . '/src/SupervisedPaymentGateway.php';
 require_once __DIR__ . '/src/EmailService.php';
 require_once __DIR__ . '/src/SmsClient.php';
 require_once __DIR__ . '/src/LoyaltyService.php';
