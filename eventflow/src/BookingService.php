@@ -4,6 +4,18 @@ declare(strict_types=1);
 
 final class BookingService
 {
+    private array $listeners;
+    
+    public function __construct(?array $listeners = null)
+    {
+        $this->listeners = $listeners ?? [
+            new EmailConfirmationListener(),
+            new LoyaltyPointsListener(),
+            new AnalyticsListener(),
+            new SmsConfirmationListener(),
+        ];
+    }
+
     public function confirm(Booking $booking, string $paymentMethod = 'stripe'): float
     {
         if (count($booking->items) === 0) {
@@ -45,8 +57,13 @@ final class BookingService
 
         echo "SQL INSERT booking={$booking->id} total={$total} status={$booking->status}" . PHP_EOL;
 
-        $emailService = new EmailService();
-        $emailService->sendConfirmation($booking->customer->email, $booking->id);
+        foreach ($this->listeners as $listener) {
+            try {
+                $listener->onBookingConfirmed($booking, $total);
+            } catch (Throwable $e) {
+                echo 'LISTENER ERROR ' . $listener::class . ': ' . $e->getMessage() . PHP_EOL;
+            }
+        }
 
         return $total;
     }
