@@ -66,8 +66,7 @@ $bookingWithInvalidEmail = createBooking();
 $bookingWithInvalidEmail->customer->email = 'not-an-email';
 $tests->same('Invalid email', errorMessageWhenConfirming($service, $bookingWithInvalidEmail), 'invalid email is rejected');
 
-$tests->same('PayFast not implemented', errorMessageWhenConfirming($service, createBooking(), 'payfast'), 'payfast is not implemented yet');
-
+$tests->same(null, errorMessageWhenConfirming($service, createBooking(), 'payfast'), 'payfast payment is accepted');
 $bookingWithNegativeTotal = createBooking('standard', '3days', 8.0, 1);
 $tests->same('Invalid amount', errorMessageWhenConfirming($service, $bookingWithNegativeTotal), 'total <= 0 is rejected by stripe');
 
